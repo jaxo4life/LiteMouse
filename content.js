@@ -8,6 +8,10 @@ let gesturePerformed = false;
 let gestureStarted = false; // 新增变量，用于跟踪手势是否开始
 let minGestureDistance = 20; // 新增：定义最小手势距离
 
+// 在文件顶部添加新的变量
+let draggedLink = null;
+let dragStartX, dragStartY;
+
 // 创建canvas元素用于显示鼠标手势路径
 function createCanvas() {
   canvas = document.createElement('canvas');
@@ -32,7 +36,7 @@ function resizeCanvas() {
   ctx.scale(dpr, dpr);
 }
 
-// 绘制鼠标手势路径
+// 绘制鼠标手��路径
 function drawPath() {
   if (!ctx) return;
   ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -200,10 +204,7 @@ function recognizeGesture(path) {
   return null;
 }
 
-// 在文件顶部添加新的变量
-let draggedLink = null;
-
-// 在 createCanvas() 函数之后添加以下新函数
+// 修改 createPlaceholder 函数
 function createPlaceholder() {
   const placeholder = document.createElement('div');
   placeholder.style.position = 'fixed';
@@ -221,49 +222,96 @@ function createPlaceholder() {
 
 const placeholder = createPlaceholder();
 
-// 在 createCanvas() 函数调用之后添加以下事件监听器
+// 修改 dragstart 事件监听器
 document.addEventListener('dragstart', (e) => {
-  const link = e.target.closest('a');
+  const target = e.target;
+  const link = findLinkElement(target);
   if (link) {
     draggedLink = link;
-    e.dataTransfer.setData('text/plain', link.href);
+    dragStartX = e.clientX;
+    dragStartY = e.clientY;
+    const url = getLinkUrl(link);
+    e.dataTransfer.setData('text/plain', url);
     placeholder.style.display = 'block';
-    console.log('Drag started:', link.href); // 添加日志
+    console.log('Drag started:', url);
   }
 });
 
-document.addEventListener('dragover', (e) => {
-  if (draggedLink) {
-    e.preventDefault();
-  }
-});
-
+// 修改 dragend 事件监听器
 document.addEventListener('dragend', (e) => {
   if (draggedLink) {
     const dragDistance = Math.sqrt(
-      Math.pow(e.clientX - e.screenX, 2) + Math.pow(e.clientY - e.screenY, 2)
+      Math.pow(e.clientX - dragStartX, 2) + Math.pow(e.clientY - dragStartY, 2)
     );
-    console.log('Drag ended. Distance:', dragDistance); // 添加日志
-    if (dragDistance > 10) { // 如果拖动距离大于10像素
-      console.log('Sending openNewTab message'); // 添加日志
-      chrome.runtime.sendMessage({ action: "openNewTab", url: draggedLink.href }, (response) => {
-        if (chrome.runtime.lastError) {
-          console.error('Error sending message:', chrome.runtime.lastError);
-        } else {
-          console.log('Response from background:', response);
-        }
-      });
+    console.log('Drag ended. Distance:', dragDistance);
+    if (dragDistance > 10) {
+      const url = getLinkUrl(draggedLink);
+      if (url) {
+        console.log('Sending openNewTab message');
+        chrome.runtime.sendMessage({ action: "openNewTab", url: url }, (response) => {
+          if (chrome.runtime.lastError) {
+            console.error('Error sending message:', chrome.runtime.lastError);
+          } else {
+            console.log('Response from background:', response);
+          }
+        });
+      }
     }
     draggedLink = null;
     placeholder.style.display = 'none';
   }
 });
 
-// 添加一个新的事件监听器来处理拖放
-document.addEventListener('drop', (e) => {
-  e.preventDefault(); // 防止默认的拖放行为
-  console.log('Drop event occurred'); // 添加日志
-});
+// 修改点击事件监听器
+document.addEventListener('click', (e) => {
+  if (e.ctrlKey || e.metaKey) {  // 添加对 Command 键（Mac）的支持
+    const target = e.target;
+    const link = findLinkElement(target);
+    if (link) {
+      e.preventDefault();
+      const url = getLinkUrl(link);
+      if (url) {
+        console.log('Ctrl/Cmd+Click detected. Opening in new tab:', url);
+        chrome.runtime.sendMessage({ action: "openNewTab", url: url }, (response) => {
+          if (chrome.runtime.lastError) {
+            console.error('Error sending message:', chrome.runtime.lastError);
+          } else {
+            console.log('Response from background:', response);
+          }
+        });
+      }
+    }
+  }
+}, true);
+
+// 新增：查找链接元素的函数
+function findLinkElement(element) {
+  while (element && element !== document.body) {
+    if (element.tagName === 'A' || element.getAttribute('href') || element.onclick) {
+      return element;
+    }
+    element = element.parentElement;
+  }
+  return null;
+}
+
+// 新增：获取链接 URL 的函数
+function getLinkUrl(element) {
+  if (element.href) {
+    return element.href;
+  }
+  if (element.getAttribute('href')) {
+    return new URL(element.getAttribute('href'), window.location.href).href;
+  }
+  if (element.onclick) {
+    const onclickStr = element.getAttribute('onclick');
+    const match = onclickStr.match(/window\.open\(['"]([^'"]+)['"]/);
+    if (match) {
+      return new URL(match[1], window.location.href).href;
+    }
+  }
+  return null;
+}
 
 createCanvas();
 console.log('Canvas created');
