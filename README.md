@@ -99,9 +99,10 @@ LiteMouse/
 ├── background.js          # 后台脚本（操作执行）
 ├── popup.html             # 弹出页面
 ├── popup.js               # 弹出页面脚本
+├── popup.css             # 样式文件
 ├── options.html           # 设置页面
 ├── options.js             # 设置页面脚本
-├── styles.css             # 样式文件
+├── options.css             # 样式文件
 ├── logo.png               # 扩展图标
 └── README.md              # 说明文档
 ```
