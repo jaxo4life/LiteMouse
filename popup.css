@@ -8,8 +8,9 @@ body {
 }
 
 .header {
-  display: flex;
+  display: gird;
   align-items: center;
+  justify-items: center;
   gap: 12px;
   margin-bottom: 20px;
   padding-bottom: 15px;
@@ -17,13 +18,13 @@ body {
 }
 
 .logo {
-  width: 32px;
-  height: 32px;
+  width: 100px;
+  height: 100px;
   background: url("logo.png") center/contain no-repeat;
 }
 
 .title {
-  font-size: 18px;
+  font-size: 25px;
   font-weight: 600;
   color: #0891b2;
 }
