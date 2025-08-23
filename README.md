@@ -104,6 +104,7 @@ LiteMouse/
 ├── styles.css             # 样式文件
 ├── logo.png               # 扩展图标
 └── README.md              # 说明文档
+```
 
 ### 技术栈
 - **Manifest V3** - Chrome扩展最新标准
