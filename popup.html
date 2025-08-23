@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>LiteMouse</title>
+    <link rel="stylesheet" href="popup.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Source+Sans+Pro:wght@400;600&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div class="header">
+      <div class="logo"></div>
+      <div class="title">LiteMouse</div>
+    </div>
+
+    <div class="status-section">
+      <div class="status-indicator">
+        <div class="status-dot" id="statusDot"></div>
+        <div class="status-text" id="statusText">扩展已启用</div>
+      </div>
+    </div>
+
+    <button class="toggle-button" id="toggleButton">禁用扩展</button>
+
+    <div class="stats">
+      <div class="stat-item">
+        <div class="stat-number" id="gestureCount">0</div>
+        <div class="stat-label">今日手势</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number" id="totalGestures">0</div>
+        <div class="stat-label">总计手势</div>
+      </div>
+    </div>
+
+    <div class="quick-actions">
+      <button class="action-button" id="settingsButton">设置</button>
+      <button class="action-button" id="helpButton">帮助</button>
+    </div>
+
+    <div class="shortcut-hint">快捷键: Ctrl+Shift+M 切换开关</div>
+
+    <script src="popup.js"></script>
+  </body>
+</html>

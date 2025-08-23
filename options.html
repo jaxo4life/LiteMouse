@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>LiteMouse 设置</title>
+    <link rel="stylesheet" href="options.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Source+Sans+Pro:wght@400;600&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div class="container">
+      <header class="header">
+        <h1>LiteMouse 设置</h1>
+        <p>自定义您的鼠标手势体验</p>
+      </header>
+
+      <section class="section">
+        <h2 class="section-title">
+          <span>🖱️</span>
+          手势配置
+        </h2>
+
+        <div class="gesture-item">
+          <div class="gesture-info">
+            <div class="gesture-preview back"></div>
+            <div>
+              <div class="gesture-name">向左滑动</div>
+              <div class="gesture-description">返回上一页</div>
+            </div>
+          </div>
+          <div class="gesture-controls">
+            <div class="toggle-switch active" data-gesture="goBack"></div>
+          </div>
+        </div>
+
+        <div class="gesture-item">
+          <div class="gesture-info">
+            <div class="gesture-preview forward"></div>
+            <div>
+              <div class="gesture-name">向右滑动</div>
+              <div class="gesture-description">前进到下一页</div>
+            </div>
+          </div>
+          <div class="gesture-controls">
+            <div class="toggle-switch active" data-gesture="goForward"></div>
+          </div>
+        </div>
+
+        <!-- Added new gesture types -->
+        <div class="gesture-item">
+          <div class="gesture-info">
+            <div class="gesture-preview up"></div>
+            <div>
+              <div class="gesture-name">向上滑动</div>
+              <div class="gesture-description">滚动到页面顶部</div>
+            </div>
+          </div>
+          <div class="gesture-controls">
+            <div class="toggle-switch active" data-gesture="scrollToTop"></div>
+          </div>
+        </div>
+
+        <div class="gesture-item">
+          <div class="gesture-info">
+            <div class="gesture-preview down"></div>
+            <div>
+              <div class="gesture-name">向下滑动</div>
+              <div class="gesture-description">滚动到页面底部</div>
+            </div>
+          </div>
+          <div class="gesture-controls">
+            <div
+              class="toggle-switch active"
+              data-gesture="scrollToBottom"
+            ></div>
+          </div>
+        </div>
+
+        <div class="gesture-item">
+          <div class="gesture-info">
+            <div class="gesture-preview close"></div>
+            <div>
+              <div class="gesture-name">L型手势</div>
+              <div class="gesture-description">关闭当前标签页</div>
+            </div>
+          </div>
+          <div class="gesture-controls">
+            <div class="toggle-switch active" data-gesture="closeTab"></div>
+          </div>
+        </div>
+
+        <div class="gesture-item">
+          <div class="gesture-info">
+            <div class="gesture-preview circular"></div>
+            <div>
+              <div class="gesture-name">圆形手势</div>
+              <div class="gesture-description">刷新当前页面</div>
+            </div>
+          </div>
+          <div class="gesture-controls">
+            <div class="toggle-switch active" data-gesture="refreshPage"></div>
+          </div>
+        </div>
+
+        <div class="gesture-item">
+          <div class="gesture-info">
+            <div class="gesture-preview z-shape"></div>
+            <div>
+              <div class="gesture-name">Z字形手势</div>
+              <div class="gesture-description">重新打开关闭的标签页</div>
+            </div>
+          </div>
+          <div class="gesture-controls">
+            <div
+              class="toggle-switch active"
+              data-gesture="reopenClosedTab"
+            ></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2 class="section-title">
+          <span>⚙️</span>
+          灵敏度设置
+        </h2>
+
+        <div class="slider-container">
+          <label class="slider-label">手势识别灵敏度</label>
+          <input
+            type="range"
+            class="slider"
+            id="sensitivity"
+            min="10"
+            max="50"
+            value="20"
+          />
+          <div
+            style="
+              display: flex;
+              justify-content: space-between;
+              font-size: 0.9rem;
+              color: var(--muted-foreground);
+              margin-top: 0.5rem;
+            "
+          >
+            <span>低</span>
+            <span>高</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2 class="section-title">
+          <span>🎨</span>
+          视觉反馈
+        </h2>
+
+        <div class="gesture-item">
+          <div class="gesture-info">
+            <div class="gesture-name">显示手势路径</div>
+            <div class="gesture-description">在执行手势时显示红色路径线</div>
+          </div>
+          <div class="gesture-controls">
+            <div class="toggle-switch active" data-setting="showPath"></div>
+          </div>
+        </div>
+
+        <div class="color-picker-container">
+          <label for="pathColor" class="slider-label">路径颜色:</label>
+          <input
+            type="color"
+            id="pathColor"
+            class="color-picker"
+            value="#ff0000"
+          />
+        </div>
+
+        <div class="slider-container">
+          <label class="slider-label">路径线条粗细</label>
+          <input
+            type="range"
+            class="slider"
+            id="lineWidth"
+            min="2"
+            max="8"
+            value="4"
+          />
+        </div>
+      </section>
+
+      <section class="section">
+        <h2 class="section-title">
+          <span>🔗</span>
+          链接操作
+        </h2>
+
+        <div class="gesture-item">
+          <div class="gesture-info">
+            <div class="gesture-name">拖拽链接打开新标签页</div>
+            <div class="gesture-description">
+              拖拽链接到空白区域打开新标签页
+            </div>
+          </div>
+          <div class="gesture-controls">
+            <div class="toggle-switch active" data-setting="dragLinks"></div>
+          </div>
+        </div>
+
+        <div class="gesture-item">
+          <div class="gesture-info">
+            <div class="gesture-name">Ctrl+点击打开新标签页</div>
+            <div class="gesture-description">
+              按住Ctrl键点击链接打开新标签页
+            </div>
+          </div>
+          <div class="gesture-controls">
+            <div class="toggle-switch active" data-setting="ctrlClick"></div>
+          </div>
+        </div>
+      </section>
+
+      <div style="display: flex; gap: 1rem">
+        <button class="save-button" id="saveSettings">保存设置</button>
+        <button class="reset-button" id="resetSettings">恢复默认</button>
+      </div>
+    </div>
+
+    <div class="status-message" id="statusMessage">设置已保存</div>
+
+    <script src="options.js"></script>
+  </body>
+</html>

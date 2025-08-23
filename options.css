@@ -1,0 +1,362 @@
+/* Chrome Extension Settings Page Styles */
+:root {
+  --background: #ffffff;
+  --foreground: #4b5563;
+  --card: #f9fafb;
+  --card-foreground: #4b5563;
+  --popover: #ffffff;
+  --popover-foreground: #4b5563;
+  --primary: #0891b2;
+  --primary-foreground: #ffffff;
+  --secondary: #ec4899;
+  --secondary-foreground: #ffffff;
+  --muted: #f9fafb;
+  --muted-foreground: #6b7280;
+  --accent: #ec4899;
+  --accent-foreground: #ffffff;
+  --destructive: #dc2626;
+  --destructive-foreground: #ffffff;
+  --border: #e5e7eb;
+  --input: #ffffff;
+  --ring: rgba(8, 145, 178, 0.5);
+  --radius: 0.5rem;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: "Source Sans Pro", -apple-system, BlinkMacSystemFont, "Segoe UI",
+    Roboto, sans-serif;
+  background-color: var(--background);
+  color: var(--foreground);
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 3rem;
+  padding-bottom: 2rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.header h1 {
+  font-family: "Playfair Display", serif;
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--primary);
+  margin-bottom: 0.5rem;
+}
+
+.header p {
+  font-size: 1.1rem;
+  color: var(--muted-foreground);
+}
+
+.section {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 2rem;
+  margin-bottom: 2rem;
+}
+
+.section-title {
+  font-family: "Playfair Display", serif;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--foreground);
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.gesture-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem;
+  border: 1px solid var(--border);
+  border-radius: calc(var(--radius) - 2px);
+  margin-bottom: 1rem;
+  background: var(--background);
+}
+
+.gesture-info {
+  flex: 1;
+}
+
+.gesture-name {
+  font-weight: 600;
+  color: var(--foreground);
+  margin-bottom: 0.25rem;
+}
+
+.gesture-description {
+  font-size: 0.9rem;
+  color: var(--muted-foreground);
+}
+
+.gesture-controls {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.toggle-switch {
+  position: relative;
+  width: 50px;
+  height: 24px;
+  background: var(--muted);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.toggle-switch.active {
+  background: var(--primary);
+}
+
+.toggle-switch::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 20px;
+  height: 20px;
+  background: white;
+  border-radius: 50%;
+  transition: transform 0.3s;
+}
+
+.toggle-switch.active::after {
+  transform: translateX(26px);
+}
+
+.slider-container {
+  margin: 1.5rem 0;
+}
+
+.slider-label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: var(--foreground);
+}
+
+.slider {
+  width: 100%;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--muted);
+  outline: none;
+  -webkit-appearance: none;
+}
+
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--primary);
+  cursor: pointer;
+}
+
+.slider::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--primary);
+  cursor: pointer;
+  border: none;
+}
+
+.color-picker-container {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin: 1rem 0;
+}
+
+.color-picker {
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: var(--radius);
+  cursor: pointer;
+}
+
+.save-button {
+  background: var(--primary);
+  color: var(--primary-foreground);
+  border: none;
+  padding: 0.75rem 2rem;
+  border-radius: var(--radius);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  margin-top: 2rem;
+  width: 80%;
+}
+
+.save-button:hover {
+  background: #0e7490;
+  transform: translateY(-1px);
+}
+
+.reset-button {
+  background: var(--destructive);
+  color: var(--destructive-foreground);
+  border: 1px solid var(--border);
+  padding: 0.5rem 1.5rem;
+  margin-right: 0;
+  border-radius: calc(var(--radius) - 2px);
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.reset-button:hover {
+  background: var(--secondary);
+}
+
+.status-message {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  padding: 1rem 1.5rem;
+  border-radius: var(--radius);
+  background: var(--primary);
+  color: var(--primary-foreground);
+  font-weight: 600;
+  transform: translateX(100%);
+  transition: transform 0.3s;
+  z-index: 1000;
+}
+
+.status-message.show {
+  transform: translateX(0);
+}
+
+.gesture-preview {
+  display: inline-block;
+  width: 40px;
+  height: 40px;
+  background: var(--muted);
+  border-radius: var(--radius);
+  margin-right: 1rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.gesture-preview::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 20%;
+  width: 60%;
+  height: 2px;
+  background: var(--primary);
+  transform: translateY(-50%);
+}
+
+.gesture-preview.back::after {
+  transform: translateY(-50%) rotate(180deg);
+}
+
+.gesture-preview.forward::after {
+  transform: translateY(-50%);
+}
+
+.gesture-preview.close::after {
+  width: 40%;
+  height: 40%;
+  background: none;
+  border: 2px solid var(--destructive);
+  border-radius: 2px;
+  top: 30%;
+  left: 30%;
+  transform: none;
+}
+
+.gesture-preview.up::after {
+  width: 2px;
+  height: 60%;
+  background: var(--primary);
+  top: 20%;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.gesture-preview.up::before {
+  content: "";
+  position: absolute;
+  top: 20%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-bottom: 8px solid var(--primary);
+  transform: translateX(-50%);
+}
+
+.gesture-preview.down::after {
+  width: 2px;
+  height: 60%;
+  background: var(--primary);
+  top: 20%;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.gesture-preview.down::before {
+  content: "";
+  position: absolute;
+  bottom: 20%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-top: 8px solid var(--primary);
+  transform: translateX(-50%);
+}
+
+.gesture-preview.circular::after {
+  width: 24px;
+  height: 24px;
+  background: none;
+  border: 2px solid var(--primary);
+  border-radius: 50%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border-top-color: transparent;
+}
+
+.gesture-preview.z-shape::after {
+  content: "Z";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-weight: bold;
+  color: var(--primary);
+  font-size: 16px;
+  background: none;
+  width: auto;
+  height: auto;
+}

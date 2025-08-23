@@ -1,0 +1,36 @@
+{
+  "manifest_version": 3,
+  "name": "LiteMouse",
+  "version": "3.0",
+  "description": "一个简单的鼠标手势和链接拖动Chrome扩展",
+  "permissions": ["sessions", "tabs", "storage"],
+  "host_permissions": ["<all_urls>"],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"]
+    }
+  ],
+  "options_page": "options.html",
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "LiteMouse - 鼠标手势扩展",
+    "default_icon": {
+      "128": "logo.png"
+    }
+  },
+  "commands": {
+    "toggle-extension": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+M"
+      },
+      "description": "切换LiteMouse开关状态"
+    }
+  },
+  "icons": {
+    "128": "logo.png"
+  }
+}
