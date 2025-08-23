@@ -9,7 +9,7 @@
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License"></a>
 </p>
 
-# LiteMouse - Advanced Mouse Gesture Extension
+# LiteMouse
 
 一个功能强大、简洁高效的Chrome鼠标手势扩展，支持多种手势操作和完全自定义配置。
 
@@ -92,19 +92,18 @@
 ## 🛠️ 开发
 
 ### 项目结构
-\`\`\`
+```text
 LiteMouse/
 ├── manifest.json          # 扩展清单文件
 ├── content.js             # 内容脚本（手势识别）
 ├── background.js          # 后台脚本（操作执行）
-├── popup.html            # 弹出页面
-├── popup.js              # 弹出页面脚本
-├── options.html          # 设置页面
-├── options.js            # 设置页面脚本
-├── styles.css            # 样式文件
-├── logo.png              # 扩展图标
-└── README.md             # 说明文档
-\`\`\`
+├── popup.html             # 弹出页面
+├── popup.js               # 弹出页面脚本
+├── options.html           # 设置页面
+├── options.js             # 设置页面脚本
+├── styles.css             # 样式文件
+├── logo.png               # 扩展图标
+└── README.md              # 说明文档
 
 ### 技术栈
 - **Manifest V3** - Chrome扩展最新标准
