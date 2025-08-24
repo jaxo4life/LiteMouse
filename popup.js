@@ -1,6 +1,11 @@
 document.addEventListener("DOMContentLoaded", () => {
   loadPopupData();
-
+	const manifest = chrome.runtime.getManifest();
+	const versionElement = document.querySelector("#version");
+	if (versionElement) {
+    versionElement.textContent = `v${manifest.version}`;
+  }
+	
   document
     .getElementById("toggleButton")
     .addEventListener("click", toggleExtension);
