@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="logo.png" alt="Littlemouse Logo" width="128">
+  <img src="/public/logo.png" alt="Littlemouse Logo" width="128">
 </p>
 
 <p align="center">
