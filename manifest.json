@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "LiteMouse",
-  "version": "3.0",
+  "version": "3.1",
   "description": "一个简单的鼠标手势和链接拖动Chrome扩展",
   "permissions": ["sessions", "tabs", "storage"],
   "host_permissions": ["<all_urls>"],
@@ -19,7 +19,7 @@
     "default_popup": "popup.html",
     "default_title": "LiteMouse - 鼠标手势扩展",
     "default_icon": {
-      "128": "logo.png"
+      "128": "/public/128.png"
     }
   },
   "commands": {
@@ -31,6 +31,6 @@
     }
   },
   "icons": {
-    "128": "logo.png"
+    "128": "/public/128.png"
   }
 }

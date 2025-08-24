@@ -159,9 +159,9 @@ body {
   width: 100%;
   height: 6px;
   border-radius: 3px;
-  background: var(--muted);
+  background: var(--popover-foreground);
   outline: none;
-  -webkit-appearance: none;
+  appearance: none;
 }
 
 .slider::-webkit-slider-thumb {

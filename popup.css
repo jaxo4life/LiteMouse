@@ -20,7 +20,7 @@ body {
 .logo {
   width: 100px;
   height: 100px;
-  background: url("logo.png") center/contain no-repeat;
+  background: url("/public/logo.png") center/contain no-repeat;
 }
 
 .title {
