@@ -28,7 +28,7 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 function loadSettings() {
-  chrome.storage.sync.get(
+  chrome.storage.local.get(
     {
       gestures: {
         goBack: true,
@@ -105,7 +105,7 @@ function saveSettings() {
       .classList.contains("active"),
   };
 
-  chrome.storage.sync.set(settings, () => {
+  chrome.storage.local.set(settings, () => {
     showStatusMessage("设置已保存");
 
     chrome.tabs.query({}, (tabs) => {
@@ -146,7 +146,7 @@ function resetSettings() {
     ctrlClick: true,
   };
 
-  chrome.storage.sync.set(defaultSettings, () => {
+  chrome.storage.local.set(defaultSettings, () => {
     loadSettings();
     showStatusMessage("已恢复默认设置");
   });

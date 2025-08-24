@@ -1,7 +1,7 @@
 let recentlyClosedTabs = [];
 
 chrome.runtime.onInstalled.addListener(() => {
-  chrome.storage.sync.get(["extensionEnabled"], (items) => {
+  chrome.storage.local.get(["extensionEnabled"], (items) => {
     const enabled = items.extensionEnabled !== false; // Default to true
     chrome.action.setBadgeText({
       text: enabled ? "" : "OFF",
@@ -14,10 +14,10 @@ chrome.runtime.onInstalled.addListener(() => {
 
 chrome.commands.onCommand.addListener((command) => {
   if (command === "toggle-extension") {
-    chrome.storage.sync.get(["extensionEnabled"], (items) => {
+    chrome.storage.local.get(["extensionEnabled"], (items) => {
       const newState = !items.extensionEnabled;
 
-      chrome.storage.sync.set({ extensionEnabled: newState }, () => {
+      chrome.storage.local.set({ extensionEnabled: newState }, () => {
         chrome.action.setBadgeText({
           text: newState ? "" : "OFF",
         });
@@ -163,7 +163,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       });
     }
   } else if (request.action === "updateStats") {
-    chrome.storage.sync.get(["gestureStats"], (items) => {
+    chrome.storage.local.get(["gestureStats"], (items) => {
       const today = new Date().toDateString();
       const stats = items.gestureStats || {
         today: 0,
@@ -179,7 +179,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       stats.today++;
       stats.total++;
 
-      chrome.storage.sync.set({ gestureStats: stats });
+      chrome.storage.local.set({ gestureStats: stats });
     });
   }
 

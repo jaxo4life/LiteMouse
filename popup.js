@@ -16,7 +16,7 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 function loadPopupData() {
-  chrome.storage.sync.get(
+  chrome.storage.local.get(
     {
       extensionEnabled: true,
       gestureStats: {
@@ -60,10 +60,10 @@ function updateUI(enabled, stats) {
 }
 
 function toggleExtension() {
-  chrome.storage.sync.get(["extensionEnabled"], (items) => {
+  chrome.storage.local.get(["extensionEnabled"], (items) => {
     const newState = !items.extensionEnabled;
 
-    chrome.storage.sync.set({ extensionEnabled: newState }, () => {
+    chrome.storage.local.set({ extensionEnabled: newState }, () => {
       // Update badge
       chrome.action.setBadgeText({
         text: newState ? "" : "OFF",
