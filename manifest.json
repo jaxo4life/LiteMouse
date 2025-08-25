@@ -24,9 +24,6 @@
   },
   "commands": {
     "toggle-extension": {
-      "suggested_key": {
-        "default": "Ctrl+Shift+M"
-      },
       "description": "切换LiteMouse开关状态"
     }
   },
