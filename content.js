@@ -611,7 +611,7 @@ function getLinkUrl(element) {
 }
 
 function loadSettings() {
-  chrome.storage.local.get(
+  chrome.storage.sync.get(
     {
       extensionEnabled: true,
       gestures: {
