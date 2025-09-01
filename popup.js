@@ -114,8 +114,7 @@ function showHelp() {
 
 其他功能：
 • 拖拽链接：打开新标签页
-• Ctrl+点击：打开新标签页
-• Ctrl+Shift+M：切换扩展开关`;
+• Ctrl+点击：打开新标签页`;
 
   alert(helpText);
 }
