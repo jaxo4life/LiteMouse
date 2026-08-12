@@ -7,10 +7,7 @@ let gestureStarted = false;
 const minGestureDistance = 20;
 
 let animationFrameId = null;
-const lastDrawTime = 0;
-const DRAW_THROTTLE = 16;
 const MAX_PATH_POINTS = 200;
-const pathUpdatePending = false;
 
 let draggedLink = null;
 let dragStartX, dragStartY;
@@ -18,23 +15,7 @@ let dragStartX, dragStartY;
 let extensionEnabled = true;
 let notificationElement = null;
 
-let settings = {
-  gestures: {
-    goBack: true,
-    goForward: true,
-    closeTab: true,
-    scrollToTop: true,
-    scrollToBottom: true,
-    refreshPage: true,
-    reopenClosedTab: true,
-  },
-  sensitivity: 20,
-  showPath: true,
-  pathColor: "#ff0000",
-  lineWidth: 4,
-  dragLinks: true,
-  ctrlClick: true,
-};
+let settings = defaultSettings();
 
 function createCanvas() {
   if (canvas) {
@@ -507,8 +488,6 @@ function createPlaceholder() {
   return placeholderElement;
 }
 
-const placeholder = createPlaceholder();
-
 document.addEventListener("dragstart", (e) => {
   if (!settings.dragLinks || !extensionEnabled) return;
 
@@ -520,7 +499,7 @@ document.addEventListener("dragstart", (e) => {
     dragStartY = e.clientY;
     const url = getLinkUrl(link);
     e.dataTransfer.setData("text/plain", url);
-    placeholder.style.display = "block";
+    createPlaceholder().style.display = "block";
   }
 });
 
@@ -545,7 +524,7 @@ document.addEventListener("dragend", (e) => {
     }
   }
   draggedLink = null;
-  placeholder.style.display = "none";
+  createPlaceholder().style.display = "none";
 });
 
 document.addEventListener(
@@ -597,11 +576,12 @@ function getLinkUrl(element) {
   if (element.href) {
     return element.href;
   }
-  if (element.getAttribute("href")) {
-    return new URL(element.getAttribute("href"), window.location.href).href;
+  const href = element.getAttribute("href");
+  if (href) {
+    return new URL(href, window.location.href).href;
   }
-  if (element.onclick) {
-    const onclickStr = element.getAttribute("onclick");
+  const onclickStr = element.getAttribute("onclick");
+  if (onclickStr) {
     const match = onclickStr.match(/window\.open\(['"]([^'"]+)['"]/);
     if (match) {
       return new URL(match[1], window.location.href).href;
@@ -611,35 +591,18 @@ function getLinkUrl(element) {
 }
 
 function loadSettings() {
-  chrome.storage.sync.get(
-    {
-      extensionEnabled: true,
-      gestures: {
-        goBack: true,
-        goForward: true,
-        closeTab: true,
-        scrollToTop: true,
-        scrollToBottom: true,
-        refreshPage: true,
-        reopenClosedTab: true,
-      },
-      sensitivity: 20,
-      showPath: true,
-      pathColor: "#ff0000",
-      lineWidth: 4,
-      dragLinks: true,
-      ctrlClick: true,
-    },
-    (items) => {
-      extensionEnabled = items.extensionEnabled;
-      settings = items;
-      colorCache.clear();
-
-      if (canvas) {
-        createCanvas();
-      }
+  chrome.storage.sync.get(defaultSettings(), (items) => {
+    settings = items;
+    colorCache.clear();
+    if (canvas) {
+      createCanvas();
     }
-  );
+  });
+  // Extension enable state is read separately — it defaults to true and lives
+  // outside the settings object (which holds gesture config only).
+  chrome.storage.sync.get({ extensionEnabled: true }, (items) => {
+    extensionEnabled = items.extensionEnabled !== false;
+  });
 }
 
 let settingsUpdateTimeout;

@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "LiteMouse",
-  "version": "3.1.1",
+  "version": "3.1.2",
   "description": "一个简单的鼠标手势和链接拖动Chrome扩展",
   "permissions": ["tabs", "storage"],
   "host_permissions": ["<all_urls>"],
@@ -11,7 +11,7 @@
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
-      "js": ["content.js"]
+      "js": ["shared.js", "content.js"]
     }
   ],
   "options_page": "options.html",

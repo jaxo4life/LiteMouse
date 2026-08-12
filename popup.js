@@ -63,39 +63,8 @@ function updateUI(enabled, stats) {
 }
 
 function toggleExtension() {
-  chrome.storage.sync.get(["extensionEnabled"], (items) => {
-    const newState = !items.extensionEnabled;
-
-    chrome.storage.sync.set({ extensionEnabled: newState }, () => {
-      // Update badge
-      chrome.action.setBadgeText({
-        text: newState ? "" : "OFF",
-      });
-
-      chrome.action.setBadgeBackgroundColor({
-        color: newState ? "#10b981" : "#ef4444",
-      });
-
-      // Notify content scripts
-      chrome.tabs.query({}, (tabs) => {
-        tabs.forEach((tab) => {
-          chrome.tabs.sendMessage(
-            tab.id,
-            {
-              action: "extensionToggled",
-              enabled: newState,
-            },
-            (response) => {
-              if (chrome.runtime.lastError) {
-                // Ignore errors for tabs without content script
-              }
-            }
-          );
-        });
-      });
-
-      loadPopupData();
-    });
+  chrome.runtime.sendMessage({ action: "toggleExtension" }, () => {
+    loadPopupData();
   });
 }
 

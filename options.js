@@ -28,25 +28,7 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 function loadSettings() {
-  chrome.storage.sync.get(
-    {
-      gestures: {
-        goBack: true,
-        goForward: true,
-        closeTab: true,
-        scrollToTop: true,
-        scrollToBottom: true,
-        refreshPage: true,
-        reopenClosedTab: true,
-      },
-      sensitivity: 20,
-      showPath: true,
-      pathColor: "#ff0000",
-      lineWidth: 4,
-      dragLinks: true,
-      ctrlClick: true,
-    },
-    (items) => {
+  chrome.storage.sync.get(defaultSettings(), (items) => {
       Object.keys(items.gestures).forEach((gesture) => {
         const toggle = document.querySelector(`[data-gesture="${gesture}"]`);
         if (toggle) {
@@ -128,25 +110,7 @@ function saveSettings() {
 }
 
 function resetSettings() {
-  const defaultSettings = {
-    gestures: {
-      goBack: true,
-      goForward: true,
-      closeTab: true,
-      scrollToTop: true,
-      scrollToBottom: true,
-      refreshPage: true,
-      reopenClosedTab: true,
-    },
-    sensitivity: 20,
-    showPath: true,
-    pathColor: "#ff0000",
-    lineWidth: 4,
-    dragLinks: true,
-    ctrlClick: true,
-  };
-
-  chrome.storage.sync.set(defaultSettings, () => {
+  chrome.storage.sync.set(defaultSettings(), () => {
     loadSettings();
     showStatusMessage("已恢复默认设置");
   });

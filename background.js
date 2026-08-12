@@ -10,44 +10,42 @@ chrome.runtime.onInstalled.addListener(() => {
   });
 });
 
-chrome.commands.onCommand.addListener((command) => {
-  if (command === "toggle-extension") {
-    chrome.storage.sync.get(["extensionEnabled"], (items) => {
-      const newState = !items.extensionEnabled;
-
-      chrome.storage.sync.set({ extensionEnabled: newState }, () => {
-        chrome.action.setBadgeText({
-          text: newState ? "" : "OFF",
+// Single source of truth for toggling the extension on/off. Shared by the
+// keyboard command and the popup button (which triggers it via a message).
+function toggleExtensionState(done) {
+  chrome.storage.sync.get(["extensionEnabled"], (items) => {
+    const current = items.extensionEnabled !== false; // undefined/absent => enabled
+    const newState = !current;
+    chrome.storage.sync.set({ extensionEnabled: newState }, () => {
+      chrome.action.setBadgeText({ text: newState ? "" : "OFF" });
+      chrome.action.setBadgeBackgroundColor({
+        color: newState ? "#10b981" : "#ef4444",
+      });
+      chrome.tabs.query({}, (tabs) => {
+        tabs.forEach((tab) => {
+          chrome.tabs.sendMessage(
+            tab.id,
+            { action: "extensionToggled", enabled: newState },
+            () => void chrome.runtime.lastError
+          );
         });
-
-        chrome.action.setBadgeBackgroundColor({
-          color: newState ? "#10b981" : "#ef4444",
-        });
-
-        // Notify content scripts
-        chrome.tabs.query({}, (tabs) => {
-          tabs.forEach((tab) => {
-            chrome.tabs.sendMessage(
-              tab.id,
-              {
-                action: "extensionToggled",
-                enabled: newState,
-              },
-              (response) => {
-                if (chrome.runtime.lastError) {
-                  // Ignore errors
-                }
-              }
-            );
-          });
-        });
+        if (done) done(newState);
       });
     });
+  });
+}
+
+chrome.commands.onCommand.addListener((command) => {
+  if (command === "toggle-extension") {
+    toggleExtensionState();
   }
 });
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-  if (request.action === "closeTab") {
+  if (request.action === "toggleExtension") {
+    toggleExtensionState((newState) => sendResponse({ enabled: newState }));
+    return true; // async sendResponse
+  } else if (request.action === "closeTab") {
     chrome.tabs.get(sender.tab.id, (tab) => {
       if (
         !chrome.runtime.lastError &&

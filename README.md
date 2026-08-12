@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/jaxo4life/LiteMouse/releases"><img src="https://img.shields.io/badge/version-3.1.1-blue.svg" alt="Version"></a>
+  <a href="https://github.com/jaxo4life/LiteMouse/releases"><img src="https://img.shields.io/badge/version-3.1.2-blue.svg" alt="Version"></a>
   <a href="https://developer.chrome.com/docs/extensions/mv3/intro/"><img src="https://img.shields.io/badge/Manifest-V3-green.svg" alt="Manifest"></a>
   <a href="#"><img src="https://img.shields.io/badge/Platform-Chrome%20Extension-orange.svg" alt="Platform"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License"></a>
@@ -44,11 +44,11 @@
 ## 🚀 安装
 
 ### 开发者模式安装
-1. 下载或克隆此项目
-2. 打开Chrome浏览器，进入 `chrome://extensions/`
-3. 开启右上角的"开发者模式"
-4. 点击"加载已解压的扩展程序"
-5. 选择项目文件夹
+1. 获取源码：`git clone https://github.com/jaxo4life/LiteMouse.git`，或从 [Releases](https://github.com/jaxo4life/LiteMouse/releases/latest) 下载压缩包解压
+2. 打开 Chrome，进入 `chrome://extensions/`
+3. 开启右上角的「开发者模式」
+4. 点击「加载已解压的扩展程序」，选择项目文件夹
+5. 修改代码后，在扩展卡片上点「刷新」图标即可热更新
 
 ## 📖 使用方法
 
@@ -97,6 +97,7 @@ LiteMouse/
 ├── manifest.json             # MV3 扩展清单
 ├── content.js                # 内容脚本（手势识别与路径绘制）
 ├── background.js             # Service Worker（操作执行、状态持久化）
+├── shared.js                 # 跨上下文共享的默认设置（单一数据源）
 ├── popup.html / .js / .css   # 弹出页面（开关状态与使用统计）
 ├── options.html / .js / .css # 设置页面
 ├── public/
@@ -117,10 +118,9 @@ LiteMouse/
 3. 修改代码后点击"重新加载"按钮
 
 ### 性能优化
-- 使用 `requestAnimationFrame` 优化canvas绘制
-- 路径点数量限制防止内存泄漏
-- 智能节流减少不必要的计算
-- 缓存机制提升响应速度
+- `requestAnimationFrame` 合并 Canvas 绘制，避免重复渲染
+- 路径点上限（200 点）防止长手势内存增长
+- 颜色解析结果缓存，减少重复计算
 
 ## 🔧 故障排除
 
