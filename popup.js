@@ -16,19 +16,22 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 function loadPopupData() {
-  chrome.storage.sync.get(
-    {
-      extensionEnabled: true,
-      gestureStats: {
-        today: 0,
-        total: 0,
-        lastDate: new Date().toDateString(),
+  // extensionEnabled stays in sync; gestureStats moved to local (high-frequency
+  // writes). Read each from its own storage area.
+  chrome.storage.sync.get({ extensionEnabled: true }, (syncItems) => {
+    chrome.storage.local.get(
+      {
+        gestureStats: {
+          today: 0,
+          total: 0,
+          lastDate: new Date().toDateString(),
+        },
       },
-    },
-    (items) => {
-      updateUI(items.extensionEnabled, items.gestureStats);
-    }
-  );
+      (localItems) => {
+        updateUI(syncItems.extensionEnabled, localItems.gestureStats);
+      }
+    );
+  });
 }
 
 function updateUI(enabled, stats) {

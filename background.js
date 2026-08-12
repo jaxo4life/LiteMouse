@@ -1,5 +1,3 @@
-let recentlyClosedTabs = [];
-
 chrome.runtime.onInstalled.addListener(() => {
   chrome.storage.sync.get(["extensionEnabled"], (items) => {
     const enabled = items.extensionEnabled !== false; // Default to true
@@ -56,15 +54,20 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         tab.url &&
         !tab.url.startsWith("chrome://")
       ) {
-        recentlyClosedTabs.unshift({
-          url: tab.url,
-          title: tab.title,
-          timestamp: Date.now(),
+        // Persist to storage.local — the MV3 service worker is non-persistent,
+        // so an in-memory array would be lost on worker restart.
+        chrome.storage.local.get(["recentlyClosedTabs"], (items) => {
+          const list = items.recentlyClosedTabs || [];
+          list.unshift({
+            url: tab.url,
+            title: tab.title,
+            timestamp: Date.now(),
+          });
+          // Keep only last 10 closed tabs
+          chrome.storage.local.set({
+            recentlyClosedTabs: list.slice(0, 10),
+          });
         });
-        // Keep only last 10 closed tabs
-        if (recentlyClosedTabs.length > 10) {
-          recentlyClosedTabs = recentlyClosedTabs.slice(0, 10);
-        }
       }
 
       chrome.tabs.remove(sender.tab.id, () => {
@@ -152,18 +155,24 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       }
     });
   } else if (request.action === "reopenClosedTab") {
-    if (recentlyClosedTabs.length > 0) {
-      const lastClosedTab = recentlyClosedTabs.shift();
-      chrome.tabs.create({ url: lastClosedTab.url }, (tab) => {
-        if (chrome.runtime.lastError) {
-          console.error("Error reopening tab:", chrome.runtime.lastError);
-        } else {
-          console.log("Tab reopened successfully:", lastClosedTab.title);
-        }
+    chrome.storage.local.get(["recentlyClosedTabs"], (items) => {
+      const list = items.recentlyClosedTabs || [];
+      if (list.length === 0) return;
+      const lastClosedTab = list.shift();
+      chrome.storage.local.set({ recentlyClosedTabs: list }, () => {
+        chrome.tabs.create({ url: lastClosedTab.url }, (tab) => {
+          if (chrome.runtime.lastError) {
+            console.error("Error reopening tab:", chrome.runtime.lastError);
+          } else {
+            console.log("Tab reopened successfully:", lastClosedTab.title);
+          }
+        });
       });
-    }
+    });
   } else if (request.action === "updateStats") {
-    chrome.storage.sync.get(["gestureStats"], (items) => {
+    // Use storage.local — gestureStats updates on every gesture; storage.sync
+    // is rate-limited (120 writes/min) and would silently drop writes.
+    chrome.storage.local.get(["gestureStats"], (items) => {
       const today = new Date().toDateString();
       const stats = items.gestureStats || {
         today: 0,
@@ -179,7 +188,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       stats.today++;
       stats.total++;
 
-      chrome.storage.sync.set({ gestureStats: stats });
+      chrome.storage.local.set({ gestureStats: stats });
     });
   }
 

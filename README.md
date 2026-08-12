@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-  <a href="#"><img src="https://img.shields.io/badge/version-3.1-blue.svg" alt="Version"></a>
+  <a href="https://github.com/jaxo4life/LiteMouse/releases"><img src="https://img.shields.io/badge/version-3.1.1-blue.svg" alt="Version"></a>
   <a href="https://developer.chrome.com/docs/extensions/mv3/intro/"><img src="https://img.shields.io/badge/Manifest-V3-green.svg" alt="Manifest"></a>
   <a href="#"><img src="https://img.shields.io/badge/Platform-Chrome%20Extension-orange.svg" alt="Platform"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License"></a>
@@ -94,17 +94,15 @@
 ### 项目结构
 ```text
 LiteMouse/
-├── manifest.json          # 扩展清单文件
-├── content.js             # 内容脚本（手势识别）
-├── background.js          # 后台脚本（操作执行）
-├── popup.html             # 弹出页面
-├── popup.js               # 弹出页面脚本
-├── popup.css             # 样式文件
-├── options.html           # 设置页面
-├── options.js             # 设置页面脚本
-├── options.css             # 样式文件
-├── logo.png               # 扩展图标
-└── README.md              # 说明文档
+├── manifest.json             # MV3 扩展清单
+├── content.js                # 内容脚本（手势识别与路径绘制）
+├── background.js             # Service Worker（操作执行、状态持久化）
+├── popup.html / .js / .css   # 弹出页面（开关状态与使用统计）
+├── options.html / .js / .css # 设置页面
+├── public/
+│   ├── 128.png               # 扩展图标
+│   └── logo.png              # README Logo
+└── README.md                 # 说明文档
 ```
 
 ### 技术栈
@@ -114,7 +112,7 @@ LiteMouse/
 - **Canvas API** - 手势路径绘制
 
 ### 本地开发
-1. 克隆项目：`git clone [repository-url]`
+1. 克隆项目：`git clone https://github.com/jaxo4life/LiteMouse.git`
 2. 在Chrome中加载扩展（开发者模式）
 3. 修改代码后点击"重新加载"按钮
 

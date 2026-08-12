@@ -1,9 +1,9 @@
 {
   "manifest_version": 3,
   "name": "LiteMouse",
-  "version": "3.1",
+  "version": "3.1.1",
   "description": "一个简单的鼠标手势和链接拖动Chrome扩展",
-  "permissions": ["sessions", "tabs", "storage"],
+  "permissions": ["tabs", "storage"],
   "host_permissions": ["<all_urls>"],
   "background": {
     "service_worker": "background.js"
@@ -24,6 +24,10 @@
   },
   "commands": {
     "toggle-extension": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+M",
+        "mac": "Command+Shift+M"
+      },
       "description": "切换LiteMouse开关状态"
     }
   },
