@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>LiteMouse — 极简鼠标手势，为浏览提速</title>
+    <meta
+      name="description"
+      content="LiteMouse 是一个轻量 Chrome 鼠标手势扩展：按住右键画一笔，即可后退、关闭、刷新。原生零依赖，隐私至上。"
+    />
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🖱️</text></svg>" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;0,900;1,500&family=Source+Sans+Pro:wght@300;400;600&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #0b0d0f;
+        --bg-elev: #14171a;
+        --text: #e8e8ea;
+        --muted: #7a828a;
+        --accent: #10b981;
+        --accent-soft: rgba(16, 185, 129, 0.14);
+        --accent-glow: rgba(16, 185, 129, 0.45);
+        --border: rgba(255, 255, 255, 0.08);
+        --font-display: "Playfair Display", Georgia, serif;
+        --font-body: "Source Sans Pro", system-ui, -apple-system, sans-serif;
+        --font-mono: "JetBrains Mono", ui-monospace, monospace;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        background: var(--bg);
+        color: var(--text);
+        font-family: var(--font-body);
+        font-weight: 300;
+        line-height: 1.6;
+        overflow-x: hidden;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      /* atmospheric background layers */
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        background:
+          radial-gradient(ellipse 80% 50% at 70% -10%, var(--accent-soft), transparent 60%),
+          radial-gradient(ellipse 60% 40% at 10% 110%, rgba(16, 185, 129, 0.08), transparent 60%);
+        pointer-events: none;
+        z-index: 0;
+      }
+
+      #trail {
+        position: fixed;
+        inset: 0;
+        z-index: 1;
+        pointer-events: none;
+      }
+
+      .wrap {
+        position: relative;
+        z-index: 2;
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 0 28px;
+      }
+
+      /* ---- nav ---- */
+      nav {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 26px 0;
+      }
+
+      .brand {
+        font-family: var(--font-display);
+        font-weight: 700;
+        font-size: 1.35rem;
+        letter-spacing: 0.01em;
+      }
+
+      .brand em {
+        color: var(--accent);
+        font-style: italic;
+      }
+
+      .nav-links {
+        display: flex;
+        gap: 28px;
+        font-size: 0.86rem;
+        font-family: var(--font-mono);
+      }
+
+      .nav-links a {
+        color: var(--muted);
+        text-decoration: none;
+        transition: color 0.2s;
+      }
+
+      .nav-links a:hover {
+        color: var(--text);
+      }
+
+      /* ---- hero ---- */
+      header {
+        padding: 7rem 0 6rem;
+      }
+
+      .eyebrow {
+        font-family: var(--font-mono);
+        font-size: 0.78rem;
+        letter-spacing: 0.22em;
+        text-transform: uppercase;
+        color: var(--accent);
+        margin-bottom: 1.8rem;
+        opacity: 0;
+        animation: rise 0.9s 0.1s cubic-bezier(0.2, 0.7, 0.2, 1) forwards;
+      }
+
+      .eyebrow::before {
+        content: "";
+        display: inline-block;
+        width: 28px;
+        height: 1px;
+        background: var(--accent);
+        vertical-align: middle;
+        margin-right: 14px;
+      }
+
+      h1.title {
+        font-family: var(--font-display);
+        font-weight: 900;
+        font-size: clamp(3.2rem, 12vw, 7.5rem);
+        line-height: 0.92;
+        letter-spacing: -0.02em;
+        margin-bottom: 1.6rem;
+      }
+
+      h1.title .word {
+        display: inline-block;
+        opacity: 0;
+        transform: translateY(40px);
+        animation: rise 1s cubic-bezier(0.2, 0.7, 0.2, 1) forwards;
+      }
+
+      h1.title .word:nth-child(1) { animation-delay: 0.18s; }
+      h1.title .word:nth-child(2) {
+        animation-delay: 0.32s;
+        font-style: italic;
+        font-weight: 500;
+        color: var(--accent);
+      }
+
+      .tagline {
+        font-size: clamp(1.05rem, 2.2vw, 1.35rem);
+        color: var(--muted);
+        max-width: 560px;
+        margin-bottom: 2.6rem;
+        font-weight: 300;
+        opacity: 0;
+        animation: rise 0.9s 0.5s cubic-bezier(0.2, 0.7, 0.2, 1) forwards;
+      }
+
+      .tagline strong {
+        color: var(--text);
+        font-weight: 600;
+      }
+
+      .cta-row {
+        display: flex;
+        gap: 16px;
+        align-items: center;
+        flex-wrap: wrap;
+        opacity: 0;
+        animation: rise 0.9s 0.66s cubic-bezier(0.2, 0.7, 0.2, 1) forwards;
+      }
+
+      .btn {
+        font-family: var(--font-mono);
+        font-size: 0.88rem;
+        text-decoration: none;
+        padding: 14px 26px;
+        border-radius: 2px;
+        transition: all 0.25s;
+        letter-spacing: 0.02em;
+      }
+
+      .btn-primary {
+        background: var(--accent);
+        color: #051410;
+        font-weight: 500;
+        box-shadow: 0 0 0 0 var(--accent-glow);
+      }
+
+      .btn-primary:hover {
+        box-shadow: 0 8px 30px -6px var(--accent-glow);
+        transform: translateY(-2px);
+      }
+
+      .btn-ghost {
+        color: var(--text);
+        border: 1px solid var(--border);
+      }
+
+      .btn-ghost:hover {
+        border-color: var(--accent);
+        color: var(--accent);
+      }
+
+      .hero-meta {
+        margin-top: 1.4rem;
+        font-family: var(--font-mono);
+        font-size: 0.76rem;
+        color: var(--muted);
+        opacity: 0;
+        animation: rise 0.9s 0.8s cubic-bezier(0.2, 0.7, 0.2, 1) forwards;
+      }
+
+      /* ---- section base ---- */
+      section {
+        padding: 5rem 0;
+      }
+
+      .section-label {
+        font-family: var(--font-mono);
+        font-size: 0.74rem;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        color: var(--accent);
+        margin-bottom: 0.9rem;
+      }
+
+      .section-title {
+        font-family: var(--font-display);
+        font-weight: 700;
+        font-size: clamp(1.8rem, 4vw, 2.6rem);
+        line-height: 1.1;
+        letter-spacing: -0.01em;
+        margin-bottom: 0.7rem;
+      }
+
+      .section-sub {
+        color: var(--muted);
+        max-width: 520px;
+        margin-bottom: 3rem;
+      }
+
+      /* ---- gestures grid ---- */
+      .gestures {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 14px;
+      }
+
+      .gesture-card {
+        background: var(--bg-elev);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        padding: 26px 22px 22px;
+        transition: border-color 0.3s, transform 0.3s, background 0.3s;
+        opacity: 0;
+        transform: translateY(24px);
+      }
+
+      .gesture-card.in {
+        animation: rise 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) forwards;
+      }
+
+      .gesture-card:hover {
+        border-color: var(--accent-soft);
+        transform: translateY(-4px);
+        background: #161a1d;
+      }
+
+      .gesture-demo {
+        position: relative;
+        width: 80px;
+        height: 56px;
+        margin-bottom: 22px;
+      }
+
+      .gesture-demo svg {
+        position: absolute;
+        inset: 0;
+        width: 80px;
+        height: 56px;
+        overflow: visible;
+      }
+
+      .gesture-demo svg path {
+        fill: none;
+        stroke: var(--accent);
+        stroke-width: 2;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        opacity: 0.22;
+      }
+
+      .gesture-dot {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 7px;
+        height: 7px;
+        margin: -3.5px 0 0 -3.5px;
+        border-radius: 50%;
+        background: var(--accent);
+        box-shadow: 0 0 10px 1px var(--accent-glow);
+        offset-rotate: 0deg;
+        animation: trace 2.6s infinite cubic-bezier(0.5, 0, 0.5, 1);
+      }
+
+      .gesture-name {
+        font-family: var(--font-mono);
+        font-size: 0.82rem;
+        color: var(--text);
+        margin-bottom: 4px;
+        letter-spacing: 0.01em;
+      }
+
+      .gesture-name span {
+        color: var(--accent);
+        margin-right: 8px;
+      }
+
+      .gesture-action {
+        font-size: 0.92rem;
+        color: var(--muted);
+      }
+
+      /* ---- features ---- */
+      .features {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 40px 30px;
+        padding-top: 1rem;
+      }
+
+      .feature h3 {
+        font-family: var(--font-display);
+        font-weight: 700;
+        font-size: 1.3rem;
+        margin-bottom: 0.6rem;
+      }
+
+      .feature h3 .num {
+        font-family: var(--font-mono);
+        font-size: 0.8rem;
+        color: var(--accent);
+        font-weight: 500;
+        display: block;
+        margin-bottom: 0.8rem;
+        letter-spacing: 0.1em;
+      }
+
+      .feature p {
+        color: var(--muted);
+        font-size: 0.96rem;
+      }
+
+      /* ---- install ---- */
+      .install-steps {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 24px;
+        counter-reset: step;
+      }
+
+      .step {
+        padding-left: 0;
+        position: relative;
+        padding-top: 2.6rem;
+      }
+
+      .step::before {
+        counter-increment: step;
+        content: "0" counter(step);
+        position: absolute;
+        top: 0;
+        left: 0;
+        font-family: var(--font-mono);
+        font-size: 1.4rem;
+        color: var(--accent);
+        font-weight: 500;
+      }
+
+      .step::after {
+        content: "";
+        position: absolute;
+        top: 1.1rem;
+        left: 0;
+        width: 36px;
+        height: 1px;
+        background: var(--border);
+      }
+
+      .step p {
+        font-size: 0.96rem;
+        color: var(--text);
+      }
+
+      .step p .dim {
+        color: var(--muted);
+      }
+
+      .step code {
+        font-family: var(--font-mono);
+        font-size: 0.84rem;
+        color: var(--accent);
+        background: var(--bg-elev);
+        padding: 2px 7px;
+        border-radius: 3px;
+      }
+
+      /* ---- footer ---- */
+      footer {
+        padding: 4rem 0 3rem;
+        border-top: 1px solid var(--border);
+        margin-top: 3rem;
+      }
+
+      .foot-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 16px;
+      }
+
+      .foot-row .brand {
+        font-size: 1.1rem;
+      }
+
+      .foot-meta {
+        font-family: var(--font-mono);
+        font-size: 0.78rem;
+        color: var(--muted);
+      }
+
+      .foot-meta a {
+        color: var(--muted);
+        text-decoration: none;
+        transition: color 0.2s;
+      }
+
+      .foot-meta a:hover {
+        color: var(--accent);
+      }
+
+      @keyframes rise {
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes trace {
+        0% {
+          offset-distance: 0%;
+          opacity: 0;
+        }
+        14% {
+          opacity: 1;
+        }
+        82% {
+          opacity: 1;
+        }
+        100% {
+          offset-distance: 100%;
+          opacity: 0;
+        }
+      }
+
+      @media (max-width: 600px) {
+        header {
+          padding: 4rem 0 4rem;
+        }
+        .nav-links {
+          gap: 18px;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+          animation-duration: 0.001ms !important;
+          animation-iteration-count: 1 !important;
+          transition-duration: 0.001ms !important;
+        }
+        .word,
+        .eyebrow,
+        .tagline,
+        .cta-row,
+        .hero-meta,
+        .gesture-card {
+          opacity: 1 !important;
+          transform: none !important;
+        }
+        .gesture-dot {
+          display: none;
+        }
+        #trail {
+          display: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="trail"></canvas>
+
+    <div class="wrap">
+      <nav>
+        <div class="brand">Lite<em>Mouse</em></div>
+        <div class="nav-links">
+          <a href="#gestures">手势</a>
+          <a href="#features">特性</a>
+          <a href="#install">安装</a>
+          <a href="https://github.com/jaxo4life/LiteMouse">GitHub</a>
+        </div>
+      </nav>
+
+      <header>
+        <div class="eyebrow">Manifest V3 · Chrome 鼠标手势扩展</div>
+        <h1 class="title">
+          <span class="word">Lite</span><span class="word">Mouse</span>
+        </h1>
+        <p class="tagline">
+          按住右键，画一笔——<strong>后退、关闭、刷新</strong>。
+          把那些反复点击的操作，交给肌肉记忆。
+        </p>
+        <div class="cta-row">
+          <a class="btn btn-primary" href="https://github.com/jaxo4life/LiteMouse/releases/latest">安装扩展 →</a>
+          <a class="btn btn-ghost" href="https://github.com/jaxo4life/LiteMouse">查看源码</a>
+        </div>
+        <div class="hero-meta">v3.1.2 · 开源 MIT · 原生零依赖</div>
+      </header>
+
+      <section id="gestures">
+        <div class="section-label">Gestures</div>
+        <h2 class="section-title">七个手势，覆盖日常</h2>
+        <p class="section-sub">右键拖动即可触发。每一个都可在设置里单独开关。</p>
+
+        <div class="gestures">
+          <div class="gesture-card">
+            <div class="gesture-demo">
+              <svg viewBox="0 0 80 56"><path d="M 62 28 L 18 28" /></svg>
+              <span class="gesture-dot" style="offset-path: path('M 62 28 L 18 28')"></span>
+            </div>
+            <div class="gesture-name"><span>←</span>向左</div>
+            <div class="gesture-action">返回上一页</div>
+          </div>
+
+          <div class="gesture-card">
+            <div class="gesture-demo">
+              <svg viewBox="0 0 80 56"><path d="M 18 28 L 62 28" /></svg>
+              <span class="gesture-dot" style="offset-path: path('M 18 28 L 62 28')"></span>
+            </div>
+            <div class="gesture-name"><span>→</span>向右</div>
+            <div class="gesture-action">前进到下一页</div>
+          </div>
+
+          <div class="gesture-card">
+            <div class="gesture-demo">
+              <svg viewBox="0 0 80 56"><path d="M 40 48 L 40 8" /></svg>
+              <span class="gesture-dot" style="offset-path: path('M 40 48 L 40 8')"></span>
+            </div>
+            <div class="gesture-name"><span>↑</span>向上</div>
+            <div class="gesture-action">滚动到页面顶部</div>
+          </div>
+
+          <div class="gesture-card">
+            <div class="gesture-demo">
+              <svg viewBox="0 0 80 56"><path d="M 40 8 L 40 48" /></svg>
+              <span class="gesture-dot" style="offset-path: path('M 40 8 L 40 48')"></span>
+            </div>
+            <div class="gesture-name"><span>↓</span>向下</div>
+            <div class="gesture-action">滚动到页面底部</div>
+          </div>
+
+          <div class="gesture-card">
+            <div class="gesture-demo">
+              <svg viewBox="0 0 80 56"><path d="M 26 8 L 26 40 L 58 40" /></svg>
+              <span class="gesture-dot" style="offset-path: path('M 26 8 L 26 40 L 58 40')"></span>
+            </div>
+            <div class="gesture-name"><span>L</span>L 型</div>
+            <div class="gesture-action">关闭当前标签页</div>
+          </div>
+
+          <div class="gesture-card">
+            <div class="gesture-demo">
+              <svg viewBox="0 0 80 56"><path d="M 40 8 A 20 20 0 1 1 39.99 8" /></svg>
+              <span class="gesture-dot" style="offset-path: path('M 40 8 A 20 20 0 1 1 39.99 8')"></span>
+            </div>
+            <div class="gesture-name"><span>○</span>圆形</div>
+            <div class="gesture-action">刷新当前页面</div>
+          </div>
+
+          <div class="gesture-card">
+            <div class="gesture-demo">
+              <svg viewBox="0 0 80 56"><path d="M 16 12 L 64 12 L 16 44 L 64 44" /></svg>
+              <span class="gesture-dot" style="offset-path: path('M 16 12 L 64 12 L 16 44 L 64 44')"></span>
+            </div>
+            <div class="gesture-name"><span>Z</span>Z 字</div>
+            <div class="gesture-action">恢复已关闭标签</div>
+          </div>
+        </div>
+      </section>
+
+      <section id="features">
+        <div class="section-label">Principles</div>
+        <h2 class="section-title">小，是有意为之</h2>
+        <p class="section-sub">不堆砌功能，只把真正常用的操作做到顺手。</p>
+
+        <div class="features">
+          <div class="feature">
+            <h3><span class="num">01</span>原生零依赖</h3>
+            <p>纯 Vanilla JS，无框架、无打包、无运行时。加载即用，源码可读，人人可审。</p>
+          </div>
+          <div class="feature">
+            <h3><span class="num">02</span>隐私至上</h3>
+            <p>不联网、不收集、不上报。所有设置与统计都留在你本机的浏览器里。</p>
+          </div>
+          <div class="feature">
+            <h3><span class="num">03</span>随心定制</h3>
+            <p>每个手势独立开关，灵敏度、路径配色、线条粗细皆可调，长成你顺手的样子。</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="install">
+        <div class="section-label">Install</div>
+        <h2 class="section-title">三步上手</h2>
+        <p class="section-sub">开发者模式加载，无需上架商店。</p>
+
+        <div class="install-steps">
+          <div class="step">
+            <p>从 <strong>Releases</strong> 下载源码压缩包<span class="dim">并解压</span></p>
+          </div>
+          <div class="step">
+            <p>打开 <code>chrome://extensions</code><span class="dim">，开启「开发者模式」</span></p>
+          </div>
+          <div class="step">
+            <p>点击「加载已解压的扩展程序」<span class="dim">，选择解压后的文件夹</span></p>
+          </div>
+        </div>
+      </section>
+
+      <footer>
+        <div class="foot-row">
+          <div class="brand">Lite<em>Mouse</em></div>
+          <div class="foot-meta">
+            v3.1.2 · <a href="https://github.com/jaxo4life/LiteMouse">GitHub</a> · <a href="https://github.com/jaxo4life/LiteMouse/releases">Releases</a> · MIT
+          </div>
+        </div>
+      </footer>
+    </div>
+
+    <script>
+      // Pointer light-trail — the page itself echoes the extension's gesture path.
+      const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      if (!reduced) {
+        const canvas = document.getElementById("trail");
+        const ctx = canvas.getContext("2d");
+        let w, h, dpr;
+        const pts = [];
+
+        function resize() {
+          dpr = window.devicePixelRatio || 1;
+          w = window.innerWidth;
+          h = window.innerHeight;
+          canvas.width = w * dpr;
+          canvas.height = h * dpr;
+          canvas.style.width = w + "px";
+          canvas.style.height = h + "px";
+          ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        }
+        resize();
+        window.addEventListener("resize", resize);
+
+        let last = 0;
+        window.addEventListener(
+          "pointermove",
+          (e) => {
+            const now = e.timeStamp;
+            if (now - last < 10) return; // light throttle
+            last = now;
+            pts.push({ x: e.clientX, y: e.clientY, life: 1 });
+            if (pts.length > 34) pts.shift();
+          },
+          { passive: true }
+        );
+
+        function loop() {
+          ctx.fillStyle = "rgba(11,13,15,0.12)";
+          ctx.fillRect(0, 0, w, h);
+          for (let i = pts.length - 1; i >= 0; i--) {
+            pts[i].life *= 0.93;
+            if (pts[i].life < 0.04) pts.splice(i, 1);
+          }
+          ctx.lineCap = "round";
+          for (let i = 1; i < pts.length; i++) {
+            const a = pts[i - 1];
+            const b = pts[i];
+            ctx.strokeStyle = "rgba(16,185,129," + (b.life * 0.7) + ")";
+            ctx.lineWidth = 1.5 + b.life * 2;
+            ctx.beginPath();
+            ctx.moveTo(a.x, a.y);
+            ctx.lineTo(b.x, b.y);
+            ctx.stroke();
+          }
+          requestAnimationFrame(loop);
+        }
+        requestAnimationFrame(loop);
+      }
+
+      // Staggered reveal of gesture cards on scroll.
+      const cards = document.querySelectorAll(".gesture-card");
+      const io = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry, i) => {
+            if (entry.isIntersecting) {
+              const idx = Array.from(cards).indexOf(entry.target);
+              entry.target.style.animationDelay = (idx % 7) * 90 + "ms";
+              entry.target.classList.add("in");
+              io.unobserve(entry.target);
+            }
+          });
+        },
+        { threshold: 0.15 }
+      );
+      cards.forEach((c) => io.observe(c));
+    </script>
+  </body>
+</html>
