@@ -3,6 +3,7 @@
 </p>
 
 <p align="center">
+  <a href="https://jaxo4life.github.io/LiteMouse/"><img src="https://img.shields.io/badge/%E5%AE%98%E7%BD%91-Live-10b981.svg" alt="Website"></a>
   <a href="https://github.com/jaxo4life/LiteMouse/releases"><img src="https://img.shields.io/badge/version-3.1.2-blue.svg" alt="Version"></a>
   <a href="https://developer.chrome.com/docs/extensions/mv3/intro/"><img src="https://img.shields.io/badge/Manifest-V3-green.svg" alt="Manifest"></a>
   <a href="#"><img src="https://img.shields.io/badge/Platform-Chrome%20Extension-orange.svg" alt="Platform"></a>
