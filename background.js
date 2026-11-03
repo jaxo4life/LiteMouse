@@ -124,26 +124,6 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         console.log("New tab opened successfully");
       }
     });
-  } else if (request.action === "scrollToTop") {
-    chrome.tabs.sendMessage(
-      sender.tab.id,
-      { action: "scrollToTop" },
-      (response) => {
-        if (chrome.runtime.lastError) {
-          console.error("Error scrolling to top:", chrome.runtime.lastError);
-        }
-      }
-    );
-  } else if (request.action === "scrollToBottom") {
-    chrome.tabs.sendMessage(
-      sender.tab.id,
-      { action: "scrollToBottom" },
-      (response) => {
-        if (chrome.runtime.lastError) {
-          console.error("Error scrolling to bottom:", chrome.runtime.lastError);
-        }
-      }
-    );
   } else if (request.action === "refreshPage") {
     chrome.tabs.reload(sender.tab.id, () => {
       if (chrome.runtime.lastError) {

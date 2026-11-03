@@ -12,6 +12,8 @@ const MAX_PATH_POINTS = 200;
 let draggedLink = null;
 let dragStartX, dragStartY;
 
+let gestureTarget = null;
+
 let extensionEnabled = true;
 let notificationElement = null;
 
@@ -188,6 +190,11 @@ function requestDraw() {
   });
 }
 
+// All gesture listeners use the capture phase: capture travels window ->
+// document -> target, so a document-level capture listener runs BEFORE any
+// element-level listener. Sites that call stopPropagation() on mousedown
+// (editors, 3D widgets, UI-library dropdowns) would otherwise cut the
+// gesture pipeline before it reaches the bubble phase at document.
 document.addEventListener("mousedown", (e) => {
   if (!extensionEnabled || e.button !== 2) return;
 
@@ -197,13 +204,14 @@ document.addEventListener("mousedown", (e) => {
   startX = e.clientX;
   startY = e.clientY;
   path = [];
+  gestureTarget = e.target;
 
   if (!canvas) {
     createCanvas();
   }
 
   e.preventDefault();
-});
+}, true);
 
 document.addEventListener("mousemove", (e) => {
   if (!isDrawing || !extensionEnabled) return;
@@ -223,7 +231,7 @@ document.addEventListener("mousemove", (e) => {
   }
 
   requestDraw();
-});
+}, true);
 
 document.addEventListener("mouseup", (e) => {
   if (!isDrawing || !extensionEnabled) return;
@@ -248,11 +256,18 @@ document.addEventListener("mouseup", (e) => {
   if (gestureStarted) {
     const gesture = recognizeGesture(path);
     if (gesture) {
-      chrome.runtime.sendMessage({ action: gesture }, (response) => {
-        if (chrome.runtime.lastError) {
-          console.error("Error sending message:", chrome.runtime.lastError);
-        }
-      });
+      if (gesture === "scrollToTop" || gesture === "scrollToBottom") {
+        // Scroll runs locally: SPA layouts often keep the viewport fixed and
+        // scroll an inner container instead (e.g. a layout div with
+        // overflow-y), which window.scrollTo cannot reach.
+        scrollToEdge(gesture === "scrollToTop" ? "top" : "bottom", gestureTarget);
+      } else {
+        chrome.runtime.sendMessage({ action: gesture }, (response) => {
+          if (chrome.runtime.lastError) {
+            console.error("Error sending message:", chrome.runtime.lastError);
+          }
+        });
+      }
 
       chrome.runtime.sendMessage({ action: "updateStats" });
 
@@ -270,7 +285,7 @@ document.addEventListener("mouseup", (e) => {
       gesturePerformed = true;
     }
   }
-});
+}, true);
 
 function drawArrow(x, y, direction, color) {
   const arrowSize = 20;
@@ -318,7 +333,29 @@ document.addEventListener("contextmenu", (e) => {
   }
   gestureStarted = false;
   gesturePerformed = false;
-});
+}, true);
+
+// Find the nearest ancestor of the gesture origin that actually scrolls.
+// Regular pages scroll the viewport (null => caller falls back to
+// document.scrollingElement); app-shell pages scroll an inner container.
+function findScrollableAncestor(el) {
+  for (let node = el; node instanceof Element; node = node.parentElement) {
+    if (node.scrollHeight > node.clientHeight + 1) {
+      const overflowY = getComputedStyle(node).overflowY;
+      if (overflowY === "auto" || overflowY === "scroll" || overflowY === "overlay") {
+        return node;
+      }
+    }
+  }
+  return null;
+}
+
+function scrollToEdge(position, originEl) {
+  const container =
+    findScrollableAncestor(originEl) || document.scrollingElement;
+  const top = position === "top" ? 0 : container.scrollHeight;
+  container.scrollTo({ top, behavior: "smooth" });
+}
 
 function recognizeGesture(path) {
   if (path.length < 5) {
@@ -623,12 +660,6 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       extensionEnabled ? "LiteMouse 已启用" : "LiteMouse 已禁用",
       "info"
     );
-    sendResponse({ received: true });
-  } else if (request.action === "scrollToTop") {
-    window.scrollTo({ top: 0, behavior: "smooth" });
-    sendResponse({ received: true });
-  } else if (request.action === "scrollToBottom") {
-    window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
     sendResponse({ received: true });
   } else if (request.action === "showFriendlyMessage") {
     showNotification(request.message, "error");
